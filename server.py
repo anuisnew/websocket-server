@@ -12,12 +12,15 @@ async def handler(websocket, path):
     print("Client connected")
     try:
         async for message in websocket:
-            print(f"Received message: {message}")
+            print(f"Received message from client: {message}")
             if message == "capture":
                 try:
-                    # Dummy response for Postman test
+                    # Log the capture command receipt
+                    print("Received 'capture' command from client")
+                    # Send a response back to the client
                     await websocket.send("Capture command received")
-                    # This block would normally handle frame data
+                    print("Sent confirmation for capture command")
+                    # Simulate handling frame data here
                     print("Processing capture command...")
                 except Exception as e:
                     print(f"Error receiving/sending frame data: {e}")
