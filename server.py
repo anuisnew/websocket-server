@@ -183,10 +183,18 @@ async def handler(websocket, path):
             if message == "capture":
                 try:
                     print("Received 'capture' command from client")
-                    await websocket.send("Capture command received")
-                    print("Sent confirmation for capture command")
+                    # Example image processing code - replace with actual image capture logic
+                    # Create an example image
+                    image = Image.new('RGB', (100, 100), color = 'red')
+                    buffered = BytesIO()
+                    image.save(buffered, format="JPEG")
+                    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                    
+                    # Send the image data to the client
+                    await websocket.send(img_str)
+                    print("Sent image data to client")
                 except Exception as e:
-                    print(f"Error receiving/sending frame data: {e}")
+                    print(f"Error sending image data: {e}")
             
     except websockets.ConnectionClosed as e:
         print(f"Connection closed: {e}")
