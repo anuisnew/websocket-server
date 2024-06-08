@@ -149,11 +149,11 @@ async def handler(websocket, path):
         async for message in websocket:
             print(f"Received message of length: {len(message)}")
 
-            if len(message) > 1000:  # Assuming the message is an image
+            if isinstance(message, bytes) and len(message) > 1000:  # Assuming the message is an image
                 print("Received image data")
                 # Broadcast the image to all connected clients
                 for client in clients:
-                    if client != websocket:  # Do not send back to the sender
+                    if client != websocket:
                         try:
                             await client.send(message)
                         except Exception as e:
