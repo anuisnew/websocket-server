@@ -160,9 +160,6 @@ async def handler(websocket, path):
                             print(f"Error sending image to client: {e}")
             else:
                 print(f"Received non-image message: {message}")
-                if message == "capture":
-                    print("Capture command received")
-                    await websocket.send("Capture command received")
                 
     except websockets.ConnectionClosed as e:
         print(f"Connection closed: {e}")
