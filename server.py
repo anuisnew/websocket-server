@@ -15,13 +15,9 @@ async def handler(websocket, path):
             print(f"Received message from client: {message}")
             if message == "capture":
                 try:
-                    # Log the capture command receipt
                     print("Received 'capture' command from client")
-                    # Send a response back to the client
                     await websocket.send("Capture command received")
                     print("Sent confirmation for capture command")
-                    # Simulate handling frame data here
-                    print("Processing capture command...")
                 except Exception as e:
                     print(f"Error receiving/sending frame data: {e}")
     except websockets.ConnectionClosed as e:
@@ -34,15 +30,15 @@ async def handler(websocket, path):
 
 async def periodic_ping():
     while True:
-        await asyncio.sleep(10)
-        for websocket in clients:
+        await asyncio.sleep(30)  # Increase the interval between pings
+        for websocket in list(clients):  # Create a copy of the set for iteration
             try:
                 await websocket.ping()
                 print("Ping sent")
             except Exception as e:
                 print(f"Error sending ping: {e}")
 
-port = int(os.environ.get("PORT", 5000))
+port = int(os.environ.get("PORT", 10000))
 start_server = websockets.serve(handler, "0.0.0.0", port)
 
 print(f"Server started on port {port}")
