@@ -137,9 +137,6 @@ import asyncio
 import websockets
 import nest_asyncio
 import os
-from io import BytesIO
-from PIL import Image
-import base64
 
 nest_asyncio.apply()
 
@@ -156,7 +153,7 @@ async def handler(websocket, path):
                 print("Received image data")
                 # Broadcast the image to all connected clients
                 for client in clients:
-                    if client != websocket:
+                    if client != websocket:  # Do not send back to the sender
                         try:
                             await client.send(message)
                         except Exception as e:
