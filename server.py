@@ -140,20 +140,10 @@ import os
 from io import BytesIO
 from PIL import Image
 import base64
-import cv2
 
 nest_asyncio.apply()
 
 clients = set()
-
-def is_valid_image(data):
-    try:
-        image = Image.open(BytesIO(data))
-        image.verify()  # Verify the image to check for corruption
-        return True
-    except Exception as e:
-        print(f"Image validation error: {e}")
-        return False
 
 async def handler(websocket, path):
     clients.add(websocket)
@@ -162,49 +152,21 @@ async def handler(websocket, path):
         async for message in websocket:
             print(f"Received message of length: {len(message)}")
 
-            if len(message) > 1000:  # Assuming a minimum size for image frames
-                if is_valid_image(message):
-                    # Reopen the image since verify() destroys it
-                    image = Image.open(BytesIO(message))
-                    buffered = BytesIO()
-                    image.save(buffered, format="JPEG")
-                    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-                    # Broadcast the image to all connected clients
-                    for client in clients:
+            if len(message) > 1000:  # Assuming the message is an image
+                print("Received image data")
+                # Broadcast the image to all connected clients
+                for client in clients:
+                    if client != websocket:
                         try:
-                            await client.send(img_str)
+                            await client.send(message)
                         except Exception as e:
-                            print(f"Error sending image: {e}")
-                else:
-                    print("Invalid image received")
+                            print(f"Error sending image to client: {e}")
             else:
                 print(f"Received non-image message: {message}")
-
-            if message == "capture":
-                try:
-                    print("Received 'capture' command from client")
-
-                    # Capture image using OpenCV
-                    cap = cv2.VideoCapture(0)
-                    ret, frame = cap.read()
-                    cap.release()
-
-                    if not ret:
-                        print("Failed to capture image")
-                        await websocket.send("Failed to capture image")
-                        continue
-
-                    # Convert the captured image to JPEG
-                    _, buffer = cv2.imencode('.jpg', frame)
-                    img_str = base64.b64encode(buffer).decode('utf-8')
-                    
-                    # Send the image data to the client
-                    await websocket.send(img_str)
-                    print("Sent image data to client")
-                except Exception as e:
-                    print(f"Error sending image data: {e}")
-            
+                if message == "capture":
+                    print("Capture command received")
+                    await websocket.send("Capture command received")
+                
     except websockets.ConnectionClosed as e:
         print(f"Connection closed: {e}")
     except Exception as e:
