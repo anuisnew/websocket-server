@@ -140,6 +140,7 @@ import os
 from io import BytesIO
 from PIL import Image
 import base64
+import cv2
 
 nest_asyncio.apply()
 
@@ -183,12 +184,20 @@ async def handler(websocket, path):
             if message == "capture":
                 try:
                     print("Received 'capture' command from client")
-                    # Example image processing code - replace with actual image capture logic
-                    # Create an example image
-                    image = Image.new('RGB', (100, 100), color = 'red')
-                    buffered = BytesIO()
-                    image.save(buffered, format="JPEG")
-                    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+                    # Capture image using OpenCV
+                    cap = cv2.VideoCapture(0)
+                    ret, frame = cap.read()
+                    cap.release()
+
+                    if not ret:
+                        print("Failed to capture image")
+                        await websocket.send("Failed to capture image")
+                        continue
+
+                    # Convert the captured image to JPEG
+                    _, buffer = cv2.imencode('.jpg', frame)
+                    img_str = base64.b64encode(buffer).decode('utf-8')
                     
                     # Send the image data to the client
                     await websocket.send(img_str)

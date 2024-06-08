@@ -2,3 +2,4 @@ asyncio
 websockets
 nest_asyncio
 Pillow
+opencv-python-headless
