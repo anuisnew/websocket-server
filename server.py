@@ -15,12 +15,10 @@ async def handler(websocket, path):
             print(f"Received message: {message}")
             if message == "capture":
                 try:
-                    frame_data = await websocket.recv()
-                    print("Received frame data")
-                    for client in clients:
-                        if client != websocket:
-                            await client.send(frame_data)
-                            print("Sent frame data to client")
+                    # Dummy response for Postman test
+                    await websocket.send("Capture command received")
+                    # This block would normally handle frame data
+                    print("Processing capture command...")
                 except Exception as e:
                     print(f"Error receiving/sending frame data: {e}")
     except websockets.ConnectionClosed as e:
@@ -41,9 +39,10 @@ async def periodic_ping():
             except Exception as e:
                 print(f"Error sending ping: {e}")
 
-start_server = websockets.serve(handler, "0.0.0.0", int(os.environ.get("PORT", 5000)))
+port = int(os.environ.get("PORT", 5000))
+start_server = websockets.serve(handler, "0.0.0.0", port)
 
-print("Server started")
+print(f"Server started on port {port}")
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().create_task(periodic_ping())
 asyncio.get_event_loop().run_forever()
